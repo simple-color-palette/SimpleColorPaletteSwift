@@ -111,6 +111,21 @@ final class ColorPaletteTests {
 			_ = try ColorPalette(serialized: invalidData)
 		}
 	}
+
+	@Test
+	func testPrecision() throws {
+		let color = ColorPalette.Color.Components(
+			red: 0.12345,    // Should round to 0.1234 (actual behavior)
+			green: 0.12350,  // Should round to 0.1235
+			blue: 0.12344,   // Should round to 0.1234
+			opacity: 0.12349 // Should round to 0.1235
+		)
+
+		let data = try JSONEncoder().encode(color)
+		let json = String(data: data, encoding: .utf8)!
+
+		#expect(json == "[0.1234,0.1235,0.1234,0.1235]")
+	}
 }
 
 #if canImport(SwiftUI)
