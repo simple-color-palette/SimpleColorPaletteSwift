@@ -7,7 +7,7 @@
 Add the following to `Package.swift`:
 
 ```swift
-.package(url: "https://github.com/simple-color-palette/SimpleColorPaletteSwift", from: "0.0.0")
+.package(url: "https://github.com/simple-color-palette/SimpleColorPaletteSwift", from: "0.1.0")
 ```
 
 [Or add the package in Xcode.](https://developer.apple.com/documentation/xcode/adding_package_dependencies_to_your_app)
