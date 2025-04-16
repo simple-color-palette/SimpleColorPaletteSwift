@@ -2,6 +2,8 @@
 
 > A Swift implementation of the [Simple Color Palette](https://simplecolorpalette.com) format — a minimal JSON-based file format for defining color palettes
 
+*Feedback wanted on the API.*
+
 ## Install
 
 Add the following to `Package.swift`:
@@ -14,7 +16,7 @@ Add the following to `Package.swift`:
 
 ## Usage
 
-<!-- [API documentation.](https://swiftpackageindex.com/simple-color-palette/SimpleColorPalette-swift/documentation/colorpalette) -->
+[API documentation](https://swiftpackageindex.com/simple-color-palette/simplecolorpaletteswift/documentation/simplecolorpalette/colorpalette)
 
 ```swift
 import SimpleColorPalette

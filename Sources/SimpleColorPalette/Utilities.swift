@@ -26,6 +26,24 @@ extension Comparable {
 }
 
 
+extension Double {
+	/**
+	Rounds the number to specified decimal places using banker's rounding.
+
+	- Parameter places: Number of decimal places (must be >= 0).
+	- Returns: The rounded number.
+	*/
+	func rounded(toPlaces places: Int) -> Self {
+		guard places >= 0 else {
+			return self
+		}
+
+		let multiplier = pow(10.0, Self(places))
+		return (self * multiplier).rounded(.toNearestOrEven) / multiplier
+	}
+}
+
+
 #if canImport(SwiftUI)
 @available(macOS 14, iOS 17, tvOS 17, watchOS 10, visionOS 1, *)
 extension Color.Resolved {

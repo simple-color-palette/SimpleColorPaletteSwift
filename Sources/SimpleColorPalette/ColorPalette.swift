@@ -151,16 +151,23 @@ extension ColorPalette.Color {
 			}
 		}
 
+		/**
+		Creates color components.
+
+		- Note: Values are rounded to 4 decimal places. Opacity is clamped to 0...1.
+		*/
 		public init(
 			red: Double,
 			green: Double,
 			blue: Double,
 			opacity: Double = 1
 		) {
-			self.red = red
-			self.green = green
-			self.blue = blue
-			self.opacity = opacity.clamped(to: 0...1)
+			// We don't also round when setting the properties later on to maintain precision during calculations (like `red += 0.1`). Rounding only happens during initialization and serialization.
+
+			self.red = red.rounded(toPlaces: 4)
+			self.green = green.rounded(toPlaces: 4)
+			self.blue = blue.rounded(toPlaces: 4)
+			self.opacity = opacity.rounded(toPlaces: 4).clamped(to: 0...1)
 		}
 	}
 }
@@ -185,19 +192,30 @@ extension ColorPalette.Color.Components: Codable {
 			throw CodingError.invalidComponentCount
 		}
 
-		red = components[0]
-		green = components[1]
-		blue = components[2]
-		opacity = components.count == 4 ? components[3].clamped(to: 0...1) : 1
+		self.init(
+			red: components[0],
+			green: components[1],
+			blue: components[2],
+			opacity: components.count == 4 ? components[3] : 1
+		)
 	}
 
 	public func encode(to encoder: Encoder) throws {
 		var container = encoder.singleValueContainer()
 
 		if opacity == 1 {
-			try container.encode([red, green, blue])
+			try container.encode([
+				red.rounded(toPlaces: 4),
+				green.rounded(toPlaces: 4),
+				blue.rounded(toPlaces: 4)
+			])
 		} else {
-			try container.encode([red, green, blue, opacity.clamped(to: 0...1)])
+			try container.encode([
+				red.rounded(toPlaces: 4),
+				green.rounded(toPlaces: 4),
+				blue.rounded(toPlaces: 4),
+				opacity.rounded(toPlaces: 4).clamped(to: 0...1)
+			])
 		}
 	}
 }
