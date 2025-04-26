@@ -77,6 +77,7 @@ extension ColorPalette {
 
 	- Parameters:
 		- url: The file URL to write the palette to. Use the `.color-palette` file extension.
+		- options: Writing options.
 	*/
 	public func write(to url: URL, options: Data.WritingOptions = []) throws {
 		try serialized().write(to: url, options: options)

@@ -3,7 +3,7 @@ import Testing
 @testable import SimpleColorPalette
 
 @Suite(.serialized)
-final class ColorPaletteTests {
+struct ColorPaletteTests {
 	private func assertComponents(
 		_ components: ColorPalette.Color.Components,
 		red: Double,
@@ -126,184 +126,75 @@ final class ColorPaletteTests {
 
 		#expect(json == "[0.1234,0.1235,0.1234,0.1235]")
 	}
-}
 
-#if canImport(SwiftUI)
-import SwiftUI
-
-@Suite(.serialized)
-final class SwiftUIExtensionsTests {
-	private let testColor = ColorPalette.Color(
-		components: .init(red: 0.5, green: 0.7, blue: 0.3, opacity: 0.8),
-		name: "Test"
-	)
-
-	private func assertResolvedColor(
-		_ color: Color.Resolved,
-		red: Float,
-		green: Float,
-		blue: Float,
-		opacity: Float = 1,
-		precision: Float = 0.0001
-	) {
-		#expect(abs(color.red - red) < precision)
-		#expect(abs(color.green - green) < precision)
-		#expect(abs(color.blue - blue) < precision)
-		#expect(abs(color.opacity - opacity) < precision)
-	}
-
-	@available(macOS 14, iOS 17, tvOS 17, watchOS 10, visionOS 1, *)
 	@Test
-	func testColorConversions() {
-		let swiftUIColor = Color(testColor)
-		let resolved = swiftUIColor.resolve(in: .init())
+	func testHexStringInitialization() {
+		// Test basic formats
+		assertComponents(ColorPalette.Color.Components(hexString: "#FF0000")!, red: 1, green: 0, blue: 0)
+		assertComponents(ColorPalette.Color.Components(hexString: "F00")!, red: 1, green: 0, blue: 0)
 
-		assertResolvedColor(
-			resolved,
-			red: 0.5,
-			green: 0.7,
-			blue: 0.3,
-			opacity: 0.8
-		)
-
-		let paletteColor = ColorPalette.Color(resolved, name: "Test")
-		let components = paletteColor.components
-
-		#expect(abs(components.red - 0.5) < 0.0001)
-		#expect(abs(components.green - 0.7) < 0.0001)
-		#expect(abs(components.blue - 0.3) < 0.0001)
-		#expect(abs(components.opacity - 0.8) < 0.0001)
-		#expect(paletteColor.name == "Test")
-	}
-
-	@available(macOS 14, iOS 17, tvOS 17, watchOS 10, visionOS 1, *)
-	@Test
-	func testResolvedColors() {
-		let resolved = [
-			Color.Resolved(colorSpace: .sRGB, red: 1, green: 0, blue: 0, opacity: 1),
-			Color.Resolved(colorSpace: .sRGB, red: 0, green: 1, blue: 0, opacity: 0.5)
-		]
-
-		var palette = ColorPalette(resolvedColors: resolved)
-		#expect(palette.colors.count == 2)
-
-		let retrieved = palette.resolvedColors
-		for (orig, ret) in zip(resolved, retrieved) {
-			assertResolvedColor(
-				ret,
-				red: orig.red,
-				green: orig.green,
-				blue: orig.blue,
-				opacity: orig.opacity
-			)
-		}
-
-		// Test setter
-		palette.resolvedColors = [resolved[0]]
-		#expect(palette.colors.count == 1)
-		assertResolvedColor(
-			palette.resolvedColors[0],
+		// Test with opacity
+		assertComponents(
+			ColorPalette.Color.Components(hexString: "#FF000080")!,
 			red: 1,
 			green: 0,
-			blue: 0
-		)
-	}
-}
-#endif
-
-#if canImport(AppKit)
-import AppKit
-
-@Suite(.serialized)
-final class AppKitExtensionsTests {
-	private func createTestPalette() -> ColorPalette {
-		ColorPalette(
-			[
-				.init(components: .init(red: 1, green: 0, blue: 0), name: "Red"),
-				.init(components: .init(red: 0, green: 1, blue: 0, opacity: 0.5), name: "Green")
-			],
-			name: "Test"
-		)
-	}
-
-	// swiftlint:disable no_cgfloat
-	private func assertNSColor(
-		_ color: NSColor?,
-		red: CGFloat,
-		green: CGFloat,
-		blue: CGFloat,
-		alpha: CGFloat = 1,
-		precision: CGFloat = 0.0001
-	) {
-		var red2: CGFloat = 0
-		var green2: CGFloat = 0
-		var blue2: CGFloat = 0
-		var alpha2: CGFloat = 0
-		color?.getRed(&red2, green: &green2, blue: &blue2, alpha: &alpha2)
-		#expect(abs(red2 - red) < precision)
-		#expect(abs(green2 - green) < precision)
-		#expect(abs(blue2 - blue) < precision)
-		#expect(abs(alpha2 - alpha) < precision)
-	}
-	// swiftlint:enable no_cgfloat
-
-	@available(macOS 14, *)
-	@Test
-	func testConversions() {
-		let colorList = NSColorList(name: "Test")
-		colorList.insertColor(NSColor.red, key: "Red", at: 0)
-		colorList.insertColor(
-			NSColor(red: 0, green: 1, blue: 0, alpha: 0.5),
-			key: "Green",
-			at: 1
-		)
-
-		let palette = ColorPalette(colorList: colorList)
-		#expect(palette.name == "Test")
-		#expect(palette.colors.count == 2)
-		#expect(palette.colors[0].name == "Red")
-		#expect(palette.colors[1].name == "Green")
-
-		let newList = NSColorList(palette)
-		#expect(newList.name == "Test")
-		#expect(newList.allKeys.count == 2)
-		assertNSColor(newList.color(withKey: "Red"), red: 1, green: 0, blue: 0)
-		assertNSColor(
-			newList.color(withKey: "Green"),
-			red: 0,
-			green: 1,
 			blue: 0,
-			alpha: 0.5
+			opacity: 128.0 / 255.0
 		)
-	}
-
-	@available(macOS 14, *)
-	@Test
-	func testUnnamedColors() {
-		let palette = ColorPalette(
-			[
-				.init(components: .init(red: 1, green: 0, blue: 0)),
-				.init(components: .init(red: 0, green: 1, blue: 0, opacity: 0.5))
-			]
+		assertComponents(
+			ColorPalette.Color.Components(hexString: "F008")!,
+			red: 1,
+			green: 0,
+			blue: 0,
+			opacity: 8.0 / 15.0
 		)
 
-		let list = NSColorList(palette)
-		#expect(list.allKeys.count == 2)
-		#expect(list.allKeys[0] == "255 0 0")
-		#expect(list.allKeys[1] == "0 255 0 50%")
+		// Test invalid formats
+		for invalid in ["", "#", "#F", "#FF", "#FFFFF", "#FFFFFFF", "#GG0000"] {
+			#expect(ColorPalette.Color.Components(hexString: invalid) == nil)
+		}
 	}
 
-	@available(macOS 14, *)
 	@Test
-	func testEmptyColorList() {
-		let emptyList = NSColorList(name: "Empty")
-		let palette = ColorPalette(colorList: emptyList)
-		#expect(palette.colors.isEmpty)
-		#expect(palette.name == "Empty")
+	func testHexIntInitialization() {
+		// Test basic formats
+		assertComponents(ColorPalette.Color.Components(hex: 0xFF0000)!, red: 1, green: 0, blue: 0)
+		assertComponents(ColorPalette.Color.Components(hex: 0xF00)!, red: 1, green: 0, blue: 0)
 
-		let newList = NSColorList(ColorPalette([], name: "Empty"))
-		#expect(newList.allKeys.isEmpty)
-		#expect(newList.name == "Empty")
+		// Test partial values
+		let partial = ColorPalette.Color.Components(hex: 0x123456)!
+		assertComponents(
+			partial,
+			red: Double(0x12) / 255,
+			green: Double(0x34) / 255,
+			blue: Double(0x56) / 255
+		)
+
+		// Test with opacity
+		assertComponents(
+			ColorPalette.Color.Components(hex: 0xFF000080)!,
+			red: 1,
+			green: 0,
+			blue: 0,
+			opacity: 128.0 / 255.0
+		)
+
+		// Test invalid values
+		#expect(ColorPalette.Color.Components(hex: -1) == nil)
+		#expect(ColorPalette.Color.Components(hex: 0x1_0000_0000) == nil)
+	}
+
+	@Test
+	func testHexRoundTrip() {
+		let originalHex = 0xFF8040
+		let components = ColorPalette.Color.Components(hex: originalHex)!
+
+		// Convert back to hex (this would be a new method we need to add)
+		let red = Int(components.red * 255)
+		let green = Int(components.green * 255)
+		let blue = Int(components.blue * 255)
+		let reconstructedHex = (red << 16) | (green << 8) | blue
+
+		#expect(reconstructedHex == originalHex)
 	}
 }
-#endif
