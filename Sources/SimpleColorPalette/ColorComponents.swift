@@ -25,7 +25,7 @@ extension ColorPalette.Color {
 		/**
 		Creates color components.
 
-		- Note: Values are rounded to 4 decimal places. Opacity is clamped to 0...1.
+		- Note: Values are rounded to 5 decimal places. Opacity is clamped to 0...1.
 		*/
 		public init(
 			red: Double,
@@ -35,10 +35,10 @@ extension ColorPalette.Color {
 		) {
 			// We don't also round when setting the properties later on to maintain precision during calculations (like `red += 0.1`). Rounding only happens during initialization and serialization.
 
-			self.red = red.rounded(toPlaces: 4)
-			self.green = green.rounded(toPlaces: 4)
-			self.blue = blue.rounded(toPlaces: 4)
-			self.opacity = opacity.rounded(toPlaces: 4).clamped(to: 0...1)
+			self.red = red.rounded(toPlaces: 5)
+			self.green = green.rounded(toPlaces: 5)
+			self.blue = blue.rounded(toPlaces: 5)
+			self.opacity = opacity.rounded(toPlaces: 5).clamped(to: 0...1)
 		}
 	}
 }
@@ -69,16 +69,16 @@ extension ColorPalette.Color.Components: Codable {
 
 		if opacity == 1 {
 			try container.encode([
-				red.rounded(toPlaces: 4),
-				green.rounded(toPlaces: 4),
-				blue.rounded(toPlaces: 4)
+				red.rounded(toPlaces: 5),
+				green.rounded(toPlaces: 5),
+				blue.rounded(toPlaces: 5)
 			])
 		} else {
 			try container.encode([
-				red.rounded(toPlaces: 4),
-				green.rounded(toPlaces: 4),
-				blue.rounded(toPlaces: 4),
-				opacity.rounded(toPlaces: 4).clamped(to: 0...1)
+				red.rounded(toPlaces: 5),
+				green.rounded(toPlaces: 5),
+				blue.rounded(toPlaces: 5),
+				opacity.rounded(toPlaces: 5).clamped(to: 0...1)
 			])
 		}
 	}
@@ -94,7 +94,7 @@ extension ColorPalette.Color.Components {
 	- RRGGBB: `"#FF0000"` → red
 	- RRGGBBAA: `"#FF000080"` → red with 50% opacity
 
-	The "#" prefix is optional.
+	The `#` prefix is optional. Both uppercase and lowercase hex digits are supported.
 
 	- Note: The input is expected to be in sRGB color space, which is the standard color space for hex colors on the web and in design tools.
 
@@ -105,7 +105,7 @@ extension ColorPalette.Color.Components {
 	let withHalfOpacity = ColorPalette.Color.Components(hexString: "#ff000080") // 50% opacity
 	```
 
-	- Note: Converting back to hex string is not supported since the components can contain values outside the 0-1 range (wide gamut colors) which cannot be represented in the sRGB hex format.
+	- Note: Converting back to hex is not supported since the components can contain values outside the 0-1 range (wide gamut colors) which cannot be represented in the sRGB hex format.
 	*/
 	public init?(hexString: String) {
 		var string = hexString.trimmingCharacters(in: .whitespaces)
@@ -147,7 +147,7 @@ extension ColorPalette.Color.Components {
 	let withHalfOpacity = ColorPalette.Color.Components(hex: 0xFF000080) // 50% opacity
 	```
 
-	- Note: Converting back to hex string is not supported since the components can contain values outside the 0-1 range (wide gamut colors) which cannot be represented in the sRGB hex format.
+	- Note: Converting back to hex is not supported since the components can contain values outside the 0-1 range (wide gamut colors) which cannot be represented in the sRGB hex format.
 	*/
 	public init?(hex: Int) {
 		let red, green, blue, opacity: Double

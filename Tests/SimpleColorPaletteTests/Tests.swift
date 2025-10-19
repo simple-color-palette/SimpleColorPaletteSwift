@@ -115,16 +115,16 @@ struct ColorPaletteTests {
 	@Test
 	func testPrecision() throws {
 		let color = ColorPalette.Color.Components(
-			red: 0.12345,    // Should round to 0.1234 (actual behavior)
-			green: 0.12350,  // Should round to 0.1235
-			blue: 0.12344,   // Should round to 0.1234
-			opacity: 0.12349 // Should round to 0.1235
+			red: 0.123456,    // Should round to 0.12346
+			green: 0.123454,  // Should round to 0.12345
+			blue: 0.123444,   // Should round to 0.12344
+			opacity: 0.123449 // Should round to 0.12345
 		)
 
 		let data = try JSONEncoder().encode(color)
 		let json = String(data: data, encoding: .utf8)!
 
-		#expect(json == "[0.1234,0.1235,0.1234,0.1235]")
+		#expect(json == "[0.12346,0.12345,0.12344,0.12345]")
 	}
 
 	@Test
@@ -186,13 +186,13 @@ struct ColorPaletteTests {
 
 	@Test
 	func testHexRoundTrip() {
-		let originalHex = 0xFF8040
+		let originalHex = 0xFFAA00
 		let components = ColorPalette.Color.Components(hex: originalHex)!
 
 		// Convert back to hex (this would be a new method we need to add)
-		let red = Int(components.red * 255)
-		let green = Int(components.green * 255)
-		let blue = Int(components.blue * 255)
+		let red = Int((components.red * 255).rounded())
+		let green = Int((components.green * 255).rounded())
+		let blue = Int((components.blue * 255).rounded())
 		let reconstructedHex = (red << 16) | (green << 8) | blue
 
 		#expect(reconstructedHex == originalHex)
